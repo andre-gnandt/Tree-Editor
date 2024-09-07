@@ -22,7 +22,7 @@ namespace LocalTreeData.Models
             get => LoadChildren ? LazyLoader.Load(this, ref _children) : new List<Node>();
             set => _children = value;
         }
-        public Node Parent { get; set; }
+        public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number {  get; set; }
         public string? Title { get; set; }
