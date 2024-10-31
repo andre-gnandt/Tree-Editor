@@ -25,7 +25,11 @@ namespace LocalTreeData.Models
         public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number {  get; set; }
-        public string? Title { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public Guid? RankId { get; set; }
+        public bool IsDeleted { get; set; }
+       
 
         public static void LoadEntities(bool load) { LoadChildren = load; }
     }

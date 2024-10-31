@@ -35,7 +35,7 @@ namespace LocalTreeData.Controllers
             //_context.ChangeTracker.LazyLoadingEnabled = true;
             Node.LoadEntities(true);
 
-            List<Node> trees = await _context.Nodes.Where(q => q.Level == 0).ToListAsync();
+            List<Node> trees = await _context.Nodes.Where(q => q.Level == 0 && !q.IsDeleted).ToListAsync();
             
             /*
             if (trees != null)
@@ -55,7 +55,7 @@ namespace LocalTreeData.Controllers
         public async Task<ActionResult<IEnumerable<Node>>> GetNodes()
         {
             Node.LoadEntities(false);
-            return await _context.Nodes.ToListAsync();
+            return await _context.Nodes.Where(q => !q.IsDeleted).ToListAsync();
         }
 
         // GET: api/Nodes/5
