@@ -35,7 +35,7 @@ namespace LocalTreeData.Controllers
             //_context.ChangeTracker.LazyLoadingEnabled = true;
             Node.LoadEntities(true);
 
-            List<Node> trees = await _context.Nodes.Where(q => q.Level == 0 && !q.IsDeleted).ToListAsync();
+            List<Node> trees = await _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToListAsync();
             
             /*
             if (trees != null)
