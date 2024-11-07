@@ -91,14 +91,11 @@ namespace LocalTreeData.Controllers
                 }
             }
 
-            var filesBefore = _context.Files.Where(q => q.NodeId == id).ToList();
+            var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
             var filesAfter = input.Files.ToList();
-
-            Console.WriteLine("**************\nFILES AFTER\n********************8");
 
             foreach (var file in filesAfter)
             {
-                Console.WriteLine(file.Id.ToString());
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
                 {
                     _context.Files.Add(file);
@@ -106,10 +103,8 @@ namespace LocalTreeData.Controllers
                 }
             }
 
-            Console.WriteLine("**************\nFILES BEFORE\n********************8");
             foreach (var file in filesBefore)
             {
-                Console.WriteLine(file.Id.ToString());
                 if (filesAfter.Find(q => q.Id == file.Id) == null)
                 {
                     file.IsDeleted = true;
