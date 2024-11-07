@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Models;
+using LocalTreeData.Dtos;
+using LocalTreeData.Application;
 
 namespace LocalTreeData.Controllers
 {
@@ -20,32 +22,14 @@ namespace LocalTreeData.Controllers
             _context = context;
         }
 
-        private void SetParentNodes(Node root)
-        {
-            foreach (var child in root.Children)
-            {
-                child.Parent = root;
-                SetParentNodes(child);
-            }
-        }
-
         [HttpGet("Trees")]
         public async Task<ActionResult<IEnumerable<Node>>> GetTrees()
         {
             //_context.ChangeTracker.LazyLoadingEnabled = true;
-            Node.LoadEntities(true);
+            Node.LoadChildren(true);
+            Node.LoadFiles(true);
 
             List<Node> trees = await _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToListAsync();
-            
-            /*
-            if (trees != null)
-            {
-                foreach (var root in trees)
-                {
-                    SetParentNodes(root);
-                }
-            }
-            */
 
             return trees;
         }
@@ -54,7 +38,8 @@ namespace LocalTreeData.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Node>>> GetNodes()
         {
-            Node.LoadEntities(false);
+            Node.LoadFiles(false);
+            Node.LoadChildren(false);
             return await _context.Nodes.Where(q => !q.IsDeleted).ToListAsync();
         }
 
@@ -62,7 +47,8 @@ namespace LocalTreeData.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Node>> GetNode(Guid id)
         {
-            Node.LoadEntities(false);
+            Node.LoadFiles(true);
+            Node.LoadChildren(false);
             var node = await _context.Nodes.FindAsync(id);
 
             if (node == null)
@@ -76,13 +62,16 @@ namespace LocalTreeData.Controllers
         // PUT: api/Nodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutNode(Guid id, Node node)
-        {
-            Node.LoadEntities(false);
-            if (id != node.Id)
+        public async Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input)
+        {   
+            Node.LoadFiles(false);
+            Node.LoadChildren(false);
+            if (id != input.Id)
             {
                 return BadRequest();
             }
+
+            Node node = CustomMapper.Map(input);
 
             _context.Entry(node).State = EntityState.Modified;
 
@@ -102,7 +91,34 @@ namespace LocalTreeData.Controllers
                 }
             }
 
-            return NoContent();
+            var filesBefore = _context.Files.Where(q => q.NodeId == id).ToList();
+            var filesAfter = input.Files.ToList();
+
+            Console.WriteLine("**************\nFILES AFTER\n********************8");
+
+            foreach (var file in filesAfter)
+            {
+                Console.WriteLine(file.Id.ToString());
+                if (filesBefore.Find(q => q.Id == file.Id) == null)
+                {
+                    _context.Files.Add(file);
+                    await _context.SaveChangesAsync();
+                }
+            }
+
+            Console.WriteLine("**************\nFILES BEFORE\n********************8");
+            foreach (var file in filesBefore)
+            {
+                Console.WriteLine(file.Id.ToString());
+                if (filesAfter.Find(q => q.Id == file.Id) == null)
+                {
+                    file.IsDeleted = true;
+                    _context.Entry(file).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
+            }
+            
+            return node;
         }
 
         // POST: api/Nodes
@@ -110,7 +126,7 @@ namespace LocalTreeData.Controllers
         [HttpPost]
         public async Task<ActionResult<Node>> PostNode(Node node)
         {
-            Node.LoadEntities(false);
+            Node.LoadChildren(false);
             _context.Nodes.Add(node);
             await _context.SaveChangesAsync();
 
@@ -121,7 +137,7 @@ namespace LocalTreeData.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteNode(Guid id)
         {
-            Node.LoadEntities(false);
+            Node.LoadChildren(false);
             var node = await _context.Nodes.FindAsync(id);
             if (node == null)
             {
@@ -136,8 +152,13 @@ namespace LocalTreeData.Controllers
 
         private bool NodeExists(Guid id)
         {
-            Node.LoadEntities(false);
+            Node.LoadChildren(false);
             return _context.Nodes.Any(e => e.Id == id);
+        }
+
+        private bool FileExists(Guid id)
+        {
+            return _context.Files.Any(e => e.Id == id);
         }
     }
 }
