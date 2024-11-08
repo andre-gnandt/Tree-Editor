@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Models;
 using LocalTreeData.Dtos;
 using LocalTreeData.Application;
+using System.Net;
+using System.Text;
 
 namespace LocalTreeData.Controllers
 {
@@ -41,6 +43,17 @@ namespace LocalTreeData.Controllers
             Node.LoadFiles(false);
             Node.LoadChildren(false);
             return await _context.Nodes.Where(q => !q.IsDeleted).ToListAsync();
+        }
+
+        [HttpPut("ImageTest/{id}")]
+        public async Task<ActionResult<string>> GetImageBase64Test(Guid id, Test test)
+        {
+            
+            string base64 = Convert.ToBase64String(test.Image);
+            return base64;
+           
+
+            return test.StringVar;
         }
 
         // GET: api/Nodes/5
