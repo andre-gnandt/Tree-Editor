@@ -105,7 +105,7 @@ namespace LocalTreeData.Controllers
             }
 
             var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
-            var filesAfter = input.Files.ToList();
+            var filesAfter =  CustomMapper.Map(input.Files.ToList());
 
             foreach (var file in filesAfter)
             {

@@ -1,5 +1,6 @@
 ﻿using LocalTreeData.Models;
 using LocalTreeData.Dtos;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace LocalTreeData.Application
 {
@@ -7,16 +8,72 @@ namespace LocalTreeData.Application
     {
         public CustomMapper() { }
 
+        public static FilePreview Map(Models.File file)
+        {
+            return new FilePreview
+            {
+                Id = file.Id,
+                NodeId = file.NodeId,
+                Data = null,
+                Base64 = file.Data != null && file.Data.Length > 0 ? Convert.ToBase64String(file.Data) : null,
+                Name = file.Name,
+                Description = file.Description, 
+                Size = file.Size,
+                Type = file.Type,
+                IsDeleted = file.IsDeleted,
+            };
+        }
+
+        public static Models.File Map(FilePreview filePreview)
+        {
+            return new Models.File
+            {
+                Id = filePreview.Id,
+                NodeId = filePreview.NodeId,
+                Data = filePreview.Data != null && filePreview.Data.Length > 0 ? filePreview.Data : null,   
+                Name = filePreview.Name,
+                Description = filePreview.Description,
+                Size = filePreview.Size,
+                Type = filePreview.Type,
+                IsDeleted = filePreview.IsDeleted,
+            };
+        }
+
+        public static List<FilePreview> Map(List<Models.File> fileList)
+        { 
+            List<FilePreview> previewList = new List<FilePreview>();
+
+            foreach (var file in fileList)
+            {
+                previewList.Add(Map(file));
+            }
+
+            return previewList;
+        }
+
+        public static List<Models.File> Map(List<FilePreview> previewList)
+        {
+            List<Models.File> fileList = new List<Models.File>();
+
+            foreach (var file in previewList)
+            {
+                fileList.Add(Map(file));
+            }
+
+            return fileList;
+        }
+
         public static Node Map(UpdateNode node) 
         {
-            List<LocalTreeData.Models.File> cloneFiles = new List<LocalTreeData.Models.File>();
+            List<FilePreview> cloneFiles = new List<FilePreview>();
 
             foreach (var file in node.Files.ToList())
             {
-                cloneFiles.Add(new Models.File { 
+                cloneFiles.Add(new FilePreview { 
                     Id = file.Id,
                     NodeId = file.NodeId,
                     Data = file.Data,
+                    Base64 = file.Base64,
                     Name = file.Name,
                     Description = file.Description,
                     Size = file.Size,

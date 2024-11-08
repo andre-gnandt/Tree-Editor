@@ -24,11 +24,7 @@ namespace LocalTreeData.Models
             get => loadChildren ? LazyLoader.Load(this, ref _children).Where(q => !q.IsDeleted).ToList() : new List<Node>();
             set =>  _children = value;
         }
-        public ICollection<File> Files
-        { 
-            get => loadFiles ? LazyLoader.Load(this, ref _files).Where(q => !q.IsDeleted).ToList() : new List<File>();
-            set => _files = value;
-        }
+        public ICollection<FilePreview> Files { get; set; } = new List<FilePreview>();
         public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number {  get; set; }
