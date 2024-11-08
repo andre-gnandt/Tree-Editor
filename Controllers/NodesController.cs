@@ -79,9 +79,34 @@ namespace LocalTreeData.Controllers
         {   
             Node.LoadFiles(false);
             Node.LoadChildren(false);
+
             if (id != input.Id)
             {
                 return BadRequest();
+            }
+
+            var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
+            var filesAfter = CustomMapper.Map(input.Files.ToList());
+
+            foreach (var file in filesAfter)
+            {
+                if (filesBefore.Find(q => q.Id == file.Id) == null)
+                {
+                    _context.Files.Add(file);
+                    await _context.SaveChangesAsync();
+
+                    if (input.ThumbnailId == file.Name) input.ThumbnailId = file.Id.ToString();
+                }
+            }
+
+            foreach (var file in filesBefore)
+            {
+                if (filesAfter.Find(q => q.Id == file.Id) == null)
+                {
+                    file.IsDeleted = true;
+                    _context.Entry(file).State = EntityState.Modified;
+                    await _context.SaveChangesAsync();
+                }
             }
 
             Node node = CustomMapper.Map(input);
@@ -103,28 +128,6 @@ namespace LocalTreeData.Controllers
                     throw;
                 }
             }
-
-            var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
-            var filesAfter =  CustomMapper.Map(input.Files.ToList());
-
-            foreach (var file in filesAfter)
-            {
-                if (filesBefore.Find(q => q.Id == file.Id) == null)
-                {
-                    _context.Files.Add(file);
-                    await _context.SaveChangesAsync();
-                }
-            }
-
-            foreach (var file in filesBefore)
-            {
-                if (filesAfter.Find(q => q.Id == file.Id) == null)
-                {
-                    file.IsDeleted = true;
-                    _context.Entry(file).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                }
-            }
             
             return node;
         }
@@ -138,7 +141,8 @@ namespace LocalTreeData.Controllers
             _context.Nodes.Add(node);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(Node), new { id = node.Id }, node);
+            //return CreatedAtAction(nameof(Node), new { id = node.Id }, node);
+            return node;
         }
 
         // DELETE: api/Nodes/5
