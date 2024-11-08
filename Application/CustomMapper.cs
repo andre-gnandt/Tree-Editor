@@ -93,6 +93,7 @@ namespace LocalTreeData.Application
                 Title = node.Title,
                 Description = node.Description,
                 RankId = node.RankId,
+                ThumbnailId = node.ThumbnailId,
                 IsDeleted = node.IsDeleted,
             }; 
         }
@@ -111,6 +112,7 @@ namespace LocalTreeData.Application
                 Title = node.Title,
                 Description = node.Description,
                 RankId = node.RankId,
+                ThumbnailId = node.ThumbnailId,
                 IsDeleted = node.IsDeleted,
             };
         }
