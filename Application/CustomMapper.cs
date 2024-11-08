@@ -1,6 +1,9 @@
 ﻿using LocalTreeData.Models;
 using LocalTreeData.Dtos;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Buffers.Text;
+using System.Net.NetworkInformation;
 
 namespace LocalTreeData.Application
 {
@@ -15,7 +18,7 @@ namespace LocalTreeData.Application
                 Id = file.Id,
                 NodeId = file.NodeId,
                 Data = null,
-                Base64 = file.Data != null && file.Data.Length > 0 ? Convert.ToBase64String(file.Data) : null,
+                Base64 = file.Data != null && file.Data.Length > 0 ? "data:image/png;base64,"+Convert.ToBase64String(file.Data) : null,
                 Name = file.Name,
                 Description = file.Description, 
                 Size = file.Size,
