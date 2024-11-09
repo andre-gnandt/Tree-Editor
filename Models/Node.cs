@@ -19,19 +19,23 @@ namespace LocalTreeData.Models
         public Guid Id { get; set; }
         public Guid? NodeId { get; set;}
         public string? Data { get; set; }
+        public string? ThumbnailId { get; set; }
         public ICollection <Node> Children 
         {
             get => loadChildren ? LazyLoader.Load(this, ref _children).Where(q => !q.IsDeleted).ToList() : new List<Node>();
             set =>  _children = value;
         }
-        public ICollection<FilePreview> Files { get; set; } = new List<FilePreview>();
+        public ICollection<File> Files
+        {
+            get => loadFiles && ThumbnailId != null ? LazyLoader.Load(this, ref _files).Where(q => q.Id == new Guid(this.ThumbnailId) && !q.IsDeleted).ToList() : new List<File>();
+            set => _files = value;
+        }
         public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number {  get; set; }
         public string Title { get; set; }
         public string? Description { get; set; }
         public Guid? RankId { get; set; }
-        public string? ThumbnailId { get; set; }
         public bool IsDeleted { get; set; }
        
 

@@ -25,7 +25,7 @@ namespace LocalTreeData.Controllers
         }
 
         [HttpGet("Trees")]
-        public async Task<ActionResult<IEnumerable<Node>>> GetTrees()
+        public async Task<ActionResult<IEnumerable<NodeDto>>> GetTrees()
         {
             //_context.ChangeTracker.LazyLoadingEnabled = true;
             Node.LoadChildren(true);
@@ -33,16 +33,18 @@ namespace LocalTreeData.Controllers
 
             List<Node> trees = await _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToListAsync();
 
-            return trees;
+            return CustomMapper.Map(trees);
         }
+
+        //.Where(f => q.ThumbnailId != null &&  f.Id == new Guid(q.ThumbnailId))
 
         // GET: api/Nodes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Node>>> GetNodes()
+        public async Task<ActionResult<IEnumerable<NodeDto>>> GetNodes()
         {
             Node.LoadFiles(false);
             Node.LoadChildren(false);
-            return await _context.Nodes.Where(q => !q.IsDeleted).ToListAsync();
+            return (CustomMapper.Map(await _context.Nodes.Where(q => !q.IsDeleted).ToListAsync()));
         }
 
         [HttpPut("ImageTest/{id}")]
@@ -58,7 +60,7 @@ namespace LocalTreeData.Controllers
 
         // GET: api/Nodes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Node>> GetNode(Guid id)
+        public async Task<ActionResult<NodeDto>> GetNode(Guid id)
         {
             Node.LoadFiles(true);
             Node.LoadChildren(false);
@@ -69,7 +71,7 @@ namespace LocalTreeData.Controllers
                 return NotFound();
             }
 
-            return node;
+            return CustomMapper.Map(node);
         }
 
         // PUT: api/Nodes/5

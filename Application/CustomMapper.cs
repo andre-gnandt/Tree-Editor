@@ -4,6 +4,7 @@ using static System.Net.Mime.MediaTypeNames;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Buffers.Text;
 using System.Net.NetworkInformation;
+using System.Collections.ObjectModel;
 
 namespace LocalTreeData.Application
 {
@@ -11,6 +12,36 @@ namespace LocalTreeData.Application
     {
         public CustomMapper() { }
 
+        public static NodeDto Map(Node node)
+        {
+            return new NodeDto
+            {
+                Id = node.Id,
+                NodeId = node.NodeId,
+                Title = node.Title,
+                Description = node.Description,
+                Data = node.Data,
+                Number = node.Number,
+                RankId = node.RankId,
+                Children = node.Children,
+                ThumbnailId = node.ThumbnailId,
+                IsDeleted = node.IsDeleted,
+                Level = node.Level,
+                Files = Map(node.Files.ToList())
+            };
+        }
+
+        public static List<NodeDto> Map(List<Node> nodes)
+        {
+            List<NodeDto> nodelist = new List<NodeDto>();
+
+            foreach (var node in nodes)
+            { 
+                nodelist.Add(Map(node));
+            }
+
+            return nodelist;
+        }
         public static FilePreview Map(Models.File file)
         {
             return new FilePreview
@@ -68,6 +99,7 @@ namespace LocalTreeData.Application
 
         public static Node Map(UpdateNode node) 
         {
+            /*
             List<FilePreview> cloneFiles = new List<FilePreview>();
 
             foreach (var file in node.Files.ToList())
@@ -84,13 +116,14 @@ namespace LocalTreeData.Application
                     IsDeleted = file.IsDeleted
                 });
             }
+            */
 
             return new Node { 
                 Id = node.Id,
                 NodeId = node.NodeId,
                 Data = node.Data,
                 Children = node.Children,
-                Files = cloneFiles,
+                Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
                 Title = node.Title,
@@ -109,7 +142,7 @@ namespace LocalTreeData.Application
                 NodeId = node.NodeId,
                 Data = node.Data,
                 Children = node.Children,
-                Files = node.Files,
+                Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
                 Title = node.Title,

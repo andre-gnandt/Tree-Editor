@@ -1,4 +1,4 @@
-﻿namespace LocalTreeData.Models
+﻿namespace LocalTreeData.Dtos
 {
     public class FilePreview
     {
