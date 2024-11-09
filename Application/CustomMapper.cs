@@ -1,10 +1,6 @@
 ﻿using LocalTreeData.Models;
 using LocalTreeData.Dtos;
-using static System.Net.Mime.MediaTypeNames;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Buffers.Text;
-using System.Net.NetworkInformation;
-using System.Collections.ObjectModel;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace LocalTreeData.Application
 {
@@ -12,24 +8,6 @@ namespace LocalTreeData.Application
     {
         public CustomMapper() { }
 
-        public static NodeDto Map(Node node)
-        {
-            return new NodeDto
-            {
-                Id = node.Id,
-                NodeId = node.NodeId,
-                Title = node.Title,
-                Description = node.Description,
-                Data = node.Data,
-                Number = node.Number,
-                RankId = node.RankId,
-                Children = node.Children,
-                ThumbnailId = node.ThumbnailId,
-                IsDeleted = node.IsDeleted,
-                Level = node.Level,
-                Files = Map(node.Files.ToList())
-            };
-        }
 
         public static List<NodeDto> Map(List<Node> nodes)
         {
@@ -41,6 +19,33 @@ namespace LocalTreeData.Application
             }
 
             return nodelist;
+        }
+
+        //Map full tree
+        public static NodeDto Map(Node node)
+        {
+            NodeDto nodeDto = new NodeDto
+            {
+                Id = node.Id,
+                NodeId = node.NodeId,
+                Title = node.Title,
+                Description = node.Description,
+                Data = node.Data,
+                Number = node.Number,
+                RankId = node.RankId,
+                ThumbnailId = node.ThumbnailId,
+                IsDeleted = node.IsDeleted,
+                Level = node.Level,
+                Files = Map(node.Files.ToList())
+            };
+
+            nodeDto.Children = new List<NodeDto>();
+            foreach (var child in node.Children)
+            { 
+                nodeDto.Children.Add(Map(child));
+            }
+
+            return nodeDto;
         }
         public static FilePreview Map(Models.File file)
         {

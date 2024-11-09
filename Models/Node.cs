@@ -27,7 +27,9 @@ namespace LocalTreeData.Models
         }
         public ICollection<File> Files
         {
-            get => loadFiles && ThumbnailId != null ? LazyLoader.Load(this, ref _files).Where(q => q.Id == new Guid(this.ThumbnailId) && !q.IsDeleted).ToList() : new List<File>();
+            get => loadFiles && ThumbnailId != null ? LazyLoader.Load(this, ref _files)
+                .Where(q => q.Id == new Guid(this.ThumbnailId) && !q.IsDeleted).ToList() : new List<File>();
+
             set => _files = value;
         }
         public Node? Parent { get; set; }

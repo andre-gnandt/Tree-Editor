@@ -1,5 +1,4 @@
 ﻿using LocalTreeData.Models;
-using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace LocalTreeData.Dtos
 {
@@ -9,7 +8,7 @@ namespace LocalTreeData.Dtos
         public Guid Id { get; set; }
         public Guid? NodeId { get; set; }
         public string? Data { get; set; }
-        public ICollection<Node> Children { get; set; }
+        public ICollection<NodeDto> Children { get; set; }
         public ICollection<FilePreview> Files { get; set; } = new List<FilePreview>();
         public Node? Parent { get; set; }
         public int? Level { get; set; }

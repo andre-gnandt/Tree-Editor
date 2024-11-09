@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Models;
 using LocalTreeData.Dtos;
 using LocalTreeData.Application;
-using System.Net;
-using System.Text;
 
 namespace LocalTreeData.Controllers
 {
@@ -32,11 +25,8 @@ namespace LocalTreeData.Controllers
             Node.LoadFiles(true);
 
             List<Node> trees = await _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToListAsync();
-
             return CustomMapper.Map(trees);
         }
-
-        //.Where(f => q.ThumbnailId != null &&  f.Id == new Guid(q.ThumbnailId))
 
         // GET: api/Nodes
         [HttpGet]
