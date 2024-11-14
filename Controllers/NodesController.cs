@@ -3,18 +3,21 @@ using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Models;
 using LocalTreeData.Dtos;
 using LocalTreeData.Application;
+using LocalTreeData.Interfaces;
 
 namespace LocalTreeData.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class NodesController : ControllerBase
+    public class NodesController : ControllerBase, INodeService
     {
         private readonly NodeContext _context;
+        private readonly INodeService _nodeService;
 
-        public NodesController(NodeContext context)
+        public NodesController(NodeContext context, INodeService nodeService)
         {
             _context = context;
+            _nodeService = nodeService;
         }
 
         [HttpGet("Trees")]
@@ -69,59 +72,12 @@ namespace LocalTreeData.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input)
         {   
-            Node.LoadFiles(false);
-            Node.LoadChildren(false);
-
             if (id != input.Id)
             {
                 return BadRequest();
             }
-
-            var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
-            var filesAfter = CustomMapper.Map(input.Files.ToList());
-
-            foreach (var file in filesAfter)
-            {
-                if (filesBefore.Find(q => q.Id == file.Id) == null)
-                {
-                    _context.Files.Add(file);
-                    await _context.SaveChangesAsync();
-
-                    if (input.ThumbnailId == file.Name) input.ThumbnailId = file.Id.ToString();
-                }
-            }
-
-            foreach (var file in filesBefore)
-            {
-                if (filesAfter.Find(q => q.Id == file.Id) == null)
-                {
-                    file.IsDeleted = true;
-                    _context.Entry(file).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                }
-            }
-
-            Node node = CustomMapper.Map(input);
-
-            _context.Entry(node).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!NodeExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
             
-            return node;
+            return await _nodeService.PutNode(id, input);
         }
 
         // POST: api/Nodes
