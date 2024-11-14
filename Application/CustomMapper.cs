@@ -102,6 +102,26 @@ namespace LocalTreeData.Application
             return fileList;
         }
 
+        public static Node Map(CreateNode node)
+        {
+
+            return new Node
+            {
+                Id = Guid.Empty,
+                NodeId = node.NodeId,
+                Data = node.Data,
+                Children = node.Children,
+                Files = Map(node.Files.ToList()),
+                Level = node.Level,
+                Number = node.Number,
+                Title = node.Title,
+                Description = node.Description,
+                RankId = node.RankId,
+                ThumbnailId = node.ThumbnailId,
+                IsDeleted = node.IsDeleted,
+            };
+        }
+
         public static Node Map(UpdateNode node) 
         {
             /*
@@ -137,25 +157,6 @@ namespace LocalTreeData.Application
                 ThumbnailId = node.ThumbnailId,
                 IsDeleted = node.IsDeleted,
             }; 
-        }
-
-        public static Node Map(CreateNode node)
-        {
-            return new Node
-            {
-                Id = Guid.Empty,
-                NodeId = node.NodeId,
-                Data = node.Data,
-                Children = node.Children,
-                Files = Map(node.Files.ToList()),
-                Level = node.Level,
-                Number = node.Number,
-                Title = node.Title,
-                Description = node.Description,
-                RankId = node.RankId,
-                ThumbnailId = node.ThumbnailId,
-                IsDeleted = node.IsDeleted,
-            };
         }
     }
 }

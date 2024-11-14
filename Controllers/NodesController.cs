@@ -127,13 +127,15 @@ namespace LocalTreeData.Controllers
         // POST: api/Nodes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Node>> PostNode(Node node)
+        public async Task<ActionResult<Node>> PostNode(CreateNode input)
         {
             Node.LoadChildren(false);
+            Node.LoadFiles(true);
+
+            Node node = CustomMapper.Map(input);
             _context.Nodes.Add(node);
             await _context.SaveChangesAsync();
 
-            //return CreatedAtAction(nameof(Node), new { id = node.Id }, node);
             return node;
         }
 

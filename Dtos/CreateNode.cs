@@ -4,6 +4,7 @@ namespace LocalTreeData.Dtos
 {
     public class CreateNode
     {
+        public Guid Id { get; set; }
         public Guid? NodeId { get; set; }
         public string? Data { get; set; }
         public ICollection<Node> Children { get; set; }
