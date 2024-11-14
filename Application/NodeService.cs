@@ -14,7 +14,23 @@ namespace LocalTreeData.Application
             _context = nodeContext;
         }
 
-        private async Task<ActionResult<Node>> UpdateNode(Guid id, UpdateNode input)
+        private async Task<Node> Update(Node node)
+        {
+            _context.Entry(node).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+
+            }
+
+            return node;
+        }
+
+        private async Task<Node> UpdateNode(Guid id, UpdateNode input)
         {
             var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
             var filesAfter = CustomMapper.Map(input.Files.ToList());
@@ -41,19 +57,18 @@ namespace LocalTreeData.Application
             }
 
             Node node = CustomMapper.Map(input);
+            return await Update(node);
+        }
 
-            _context.Entry(node).State = EntityState.Modified;
-
-            try
+        public async Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> inputList)
+        { 
+            List<Node> updatedNodes = new List<Node>();
+            foreach (var input in inputList)
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-
+                updatedNodes.Add(await UpdateNode(input.Id, input));
             }
 
-            return node;
+            return updatedNodes;
         }
 
         public async Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input)
@@ -62,6 +77,42 @@ namespace LocalTreeData.Application
             Node.LoadChildren(false);
            
             return await UpdateNode(id, input);
+        }
+
+        private async Task<Node> CreateNode(CreateNode input)
+        {
+            Node node = CustomMapper.Map(input);
+            _context.Nodes.Add(node);
+            await _context.SaveChangesAsync();
+
+            return node;
+        }
+
+        public async Task<ActionResult<Node>> CreateRoot(CreateNode input)
+        {
+            Node.LoadChildren(false);
+            Node.LoadFiles(true);
+
+            List<Node> findRootNode = _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToList();
+            Node oldRootNode = findRootNode.Count > 0 ? findRootNode[0] : null;
+
+            Node newRoot = await CreateNode(input);
+
+            if (oldRootNode != null)
+            {
+                oldRootNode.NodeId = newRoot.Id;
+                await Update(oldRootNode);
+            }
+
+            return newRoot;
+        }
+
+        public async Task<ActionResult<Node>> Create(CreateNode input)
+        {
+            Node.LoadChildren(false);
+            Node.LoadFiles(true);
+
+            return await CreateNode(input);
         }
     }
 }

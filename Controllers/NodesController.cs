@@ -67,6 +67,12 @@ namespace LocalTreeData.Controllers
             return CustomMapper.Map(node);
         }
 
+        [HttpPut("Many/{id}")]
+        public async Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> input)
+        {
+            return await _nodeService.UpdateMany(id, input);
+        }
+
         // PUT: api/Nodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
@@ -80,19 +86,21 @@ namespace LocalTreeData.Controllers
             return await _nodeService.PutNode(id, input);
         }
 
+        [HttpPost]
+
+
         // POST: api/Nodes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Node>> PostNode(CreateNode input)
+        public async Task<ActionResult<Node>> Create(CreateNode input)
         {
-            Node.LoadChildren(false);
-            Node.LoadFiles(true);
+            return await _nodeService.Create(input);
+        }
 
-            Node node = CustomMapper.Map(input);
-            _context.Nodes.Add(node);
-            await _context.SaveChangesAsync();
-
-            return node;
+        [HttpPost("Root")]
+        public async Task<ActionResult<Node>> CreateRoot(CreateNode input)
+        { 
+            return await _nodeService.CreateRoot(input);
         }
 
         // DELETE: api/Nodes/5
@@ -100,13 +108,15 @@ namespace LocalTreeData.Controllers
         public async Task<IActionResult> DeleteNode(Guid id)
         {
             Node.LoadChildren(false);
+            Node.LoadFiles(false);
             var node = await _context.Nodes.FindAsync(id);
             if (node == null)
             {
                 return NotFound();
             }
 
-            _context.Nodes.Remove(node);
+            node.IsDeleted = true;
+            _context.Entry(node).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
             return NoContent();
@@ -115,6 +125,7 @@ namespace LocalTreeData.Controllers
         private bool NodeExists(Guid id)
         {
             Node.LoadChildren(false);
+            Node.LoadFiles(false);
             return _context.Nodes.Any(e => e.Id == id);
         }
 
