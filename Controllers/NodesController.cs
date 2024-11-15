@@ -104,22 +104,16 @@ namespace LocalTreeData.Controllers
         }
 
         // DELETE: api/Nodes/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteNode(Guid id)
+        [HttpDelete("Delete-One{id}")]
+        public async Task<ActionResult<Node>> DeleteNode(Guid id)
         {
-            Node.LoadChildren(false);
-            Node.LoadFiles(false);
-            var node = await _context.Nodes.FindAsync(id);
-            if (node == null)
-            {
-                return NotFound();
-            }
+            return await _nodeService.DeleteNode(id);
+        }
 
-            node.IsDeleted = true;
-            _context.Entry(node).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+        [HttpDelete("Delete-Cascade{id}")]
+        public async Task<ActionResult<Node>> DeleteCascade(Guid id)
+        {
+            return await _nodeService.DeleteCascade(id);
         }
 
         private bool NodeExists(Guid id)

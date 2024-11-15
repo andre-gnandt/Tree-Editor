@@ -3,6 +3,7 @@ using LocalTreeData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Interfaces;
+using Microsoft.CodeAnalysis;
 
 namespace LocalTreeData.Application
 {
@@ -113,6 +114,53 @@ namespace LocalTreeData.Application
             Node.LoadFiles(true);
 
             return await CreateNode(input);
+        }
+
+        private async Task DeleteTree(Node node)
+        {
+            foreach (var child in node.Children)
+            {
+                await Delete(child.Id);
+                await DeleteTree(child);
+            }
+        }
+
+        private async Task<Node> Delete(Guid id)
+        {
+            var node = await _context.Nodes.FindAsync(id);
+            node.IsDeleted = true;
+            return await Update(node);
+        }
+        
+        public async Task<ActionResult<Node>> DeleteNode(Guid id)
+        {
+            Node.LoadFiles(false);
+            Node.LoadChildren(true);
+            
+            Node tree = _context.Nodes.Find(id);
+            Node node = await Delete(id);
+
+            foreach(Node child in tree.Children)
+            {
+                child.NodeId = tree.NodeId;
+                await Update(child);
+            }
+
+            return node;
+        }
+
+        public async Task<ActionResult<Node>> DeleteCascade(Guid id)
+        {
+            Node.LoadFiles(false);
+            Node.LoadChildren(true);
+
+            Node tree = _context.Nodes.Find(id);
+            Node node = await Delete(id);
+
+            await DeleteTree(tree);
+
+            return node;
+
         }
     }
 }
