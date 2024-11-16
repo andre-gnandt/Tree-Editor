@@ -62,7 +62,10 @@ namespace LocalTreeData.Application
         }
 
         public async Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> inputList)
-        { 
+        {
+            Node.LoadFiles(true);
+            Node.LoadChildren(false);
+
             List<Node> updatedNodes = new List<Node>();
             foreach (var input in inputList)
             {
