@@ -21,8 +21,9 @@ namespace LocalTreeData.Models
         public string? Data { get; set; }
         public string? ThumbnailId { get; set; }
         public ICollection <Node> Children 
-        {
-            get => loadChildren ? LazyLoader.Load(this, ref _children).Where(q => !q.IsDeleted).ToList() : new List<Node>();
+        {                                                                                       //order by ID to maintain a unique and constant ordering of the tree
+                                                                                                //for consistency with the front end
+            get => loadChildren ? LazyLoader.Load(this, ref _children).Where(q => !q.IsDeleted).OrderBy(q => q.Id).ToList() : new List<Node>();
             set =>  _children = value;
         }
         public ICollection<File> Files
