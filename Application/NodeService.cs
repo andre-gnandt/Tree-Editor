@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Interfaces;
 using Microsoft.CodeAnalysis;
+using System.Xml.Linq;
 
 namespace LocalTreeData.Application
 {
@@ -31,11 +32,10 @@ namespace LocalTreeData.Application
             return node;
         }
 
-        private async Task<Node> UpdateNode(Guid id, UpdateNode input)
+        private async Task<List<Models.File>> UpdateNodeFiles(Node input, List<Models.File> filesAfter)
         {
-            var filesBefore = _context.Files.Where(q => q.NodeId == id && !q.IsDeleted).ToList();
-            var filesAfter = CustomMapper.Map(input.Files.ToList());
-
+            var filesBefore = _context.Files.Where(q => q.NodeId == input.Id && !q.IsDeleted).ToList();
+            
             foreach (var file in filesAfter)
             {
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
@@ -57,7 +57,16 @@ namespace LocalTreeData.Application
                 }
             }
 
+            return null;
+        }
+
+        private async Task<Node> UpdateNode(Guid id, UpdateNode input)
+        {
+            var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
+            
+            await UpdateNodeFiles(node, filesAfter);
+            
             return await Update(node);
         }
 
@@ -85,9 +94,17 @@ namespace LocalTreeData.Application
 
         private async Task<Node> CreateNode(CreateNode input)
         {
+            var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
+            
             _context.Nodes.Add(node);
             await _context.SaveChangesAsync();
+
+            foreach (var file in filesAfter)
+            {
+                file.NodeId = node.Id;
+            }
+            await UpdateNodeFiles(node, filesAfter);
 
             return node;
         }
