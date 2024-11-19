@@ -7,6 +7,7 @@ namespace LocalTreeData.Dtos
 
         public Guid Id { get; set; }
         public Guid? NodeId { get; set; }
+        public Guid? TreeId { get; set; }
         public string? Data { get; set; }
         public ICollection<NodeDto> Children { get; set; }
         public ICollection<FilePreview> Files { get; set; } = new List<FilePreview>();
