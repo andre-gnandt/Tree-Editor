@@ -10,6 +10,7 @@ namespace LocalTreeData.Models
             //this.ChangeTracker.LazyLoadingEnabled = false;
         }
 
+        public DbSet<File> Files { get; set; }
         public DbSet<Node> Nodes { get; set; }
     }
 }

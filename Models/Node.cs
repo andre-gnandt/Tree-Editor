@@ -5,8 +5,10 @@ namespace LocalTreeData.Models
     public class Node
     {
         private ICollection<Node> _children;
+        private ICollection<File> _files;
         private ILazyLoader LazyLoader { get; set; }
-        private static bool LoadChildren;
+        private static bool loadChildren;
+        private static bool loadFiles;
 
         public Node() { }
         private Node(ILazyLoader lazyLoader)
@@ -17,16 +19,30 @@ namespace LocalTreeData.Models
         public Guid Id { get; set; }
         public Guid? NodeId { get; set;}
         public string? Data { get; set; }
-        public ICollection<Node> Children 
+        public string? ThumbnailId { get; set; }
+        public ICollection <Node> Children 
+        {                                                                                       //order by ID to maintain a unique and constant ordering of the tree
+                                                                                                //for consistency with the front end
+            get => loadChildren ? LazyLoader.Load(this, ref _children).Where(q => !q.IsDeleted).OrderBy(q => q.Id).ToList() : new List<Node>();
+            set =>  _children = value;
+        }
+        public ICollection<File> Files
         {
-            get => LoadChildren ? LazyLoader.Load(this, ref _children) : new List<Node>();
-            set => _children = value;
+            get => loadFiles && ThumbnailId != null ? LazyLoader.Load(this, ref _files)
+                .Where(q => q.Id == new Guid(this.ThumbnailId) && !q.IsDeleted).ToList() : new List<File>();
+
+            set => _files = value;
         }
         public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number {  get; set; }
-        public string? Title { get; set; }
+        public string Title { get; set; }
+        public string? Description { get; set; }
+        public Guid? RankId { get; set; }
+        public bool IsDeleted { get; set; }
+       
 
-        public static void LoadEntities(bool load) { LoadChildren = load; }
+        public static void LoadChildren(bool load) { loadChildren = load; }
+        public static void LoadFiles(bool load) { loadFiles = load; }
     }
 }

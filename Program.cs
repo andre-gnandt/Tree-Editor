@@ -3,6 +3,8 @@ using LocalTreeData.Models;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Proxies;
+using LocalTreeData.Interfaces;
+using LocalTreeData.Application;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,6 +24,9 @@ builder.Services.AddDbContext<NodeContext>(
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddMvc();
+builder.Services.AddScoped<INodeService, NodeService>();
 
 var app = builder.Build();
 
