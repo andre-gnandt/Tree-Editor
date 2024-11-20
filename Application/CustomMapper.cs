@@ -161,5 +161,18 @@ namespace LocalTreeData.Application
                 IsDeleted = node.IsDeleted,
             }; 
         }
+
+        public static Tree Map(CreateTree tree)
+        {
+
+            return new Tree
+            {
+                Id = Guid.Empty,
+                Name = tree.Name,
+                Description = tree.Description,
+                RootId = null,
+                IsDeleted = false
+            };
+        }
     }
 }

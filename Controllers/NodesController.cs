@@ -86,9 +86,6 @@ namespace LocalTreeData.Controllers
             return await _nodeService.PutNode(id, input);
         }
 
-        [HttpPost]
-
-
         // POST: api/Nodes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]

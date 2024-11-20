@@ -114,8 +114,8 @@ namespace LocalTreeData.Application
             Node.LoadChildren(false);
             Node.LoadFiles(true);
 
-            List<Node> findRootNode = _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToList();
-            Node oldRootNode = findRootNode.Count > 0 ? findRootNode[0] : null;
+            Tree tree = await _context.Trees.FindAsync(input.TreeId);
+            Node oldRootNode = tree.RootId != null ? await _context.Nodes.FindAsync(tree.RootId) : null;
 
             Node newRoot = await CreateNode(input);
 
@@ -124,6 +124,10 @@ namespace LocalTreeData.Application
                 oldRootNode.NodeId = newRoot.Id;
                 await Update(oldRootNode);
             }
+
+            tree.RootId = newRoot.Id;
+            _context.Entry(tree).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return newRoot;
         }
