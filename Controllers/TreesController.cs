@@ -3,9 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using LocalTreeData.Models;
 using LocalTreeData.Dtos;
 using LocalTreeData.Application;
-using LocalTreeData.Interfaces;
-using System.Linq;
-using System.Xml.Linq;
 
 namespace LocalTreeData.Controllers
 {
@@ -27,6 +24,8 @@ namespace LocalTreeData.Controllers
             Node.LoadFiles(true);
 
             Tree tree = await _context.Trees.FindAsync(id);
+            if (tree.IsDeleted) return new FullTree { Tree = null, Root = null };
+
             NodeDto root = tree.RootId != null ? CustomMapper.Map(await _context.Nodes.FindAsync(tree.RootId)) : null;
             
             return new FullTree { Tree = tree, Root = root};
