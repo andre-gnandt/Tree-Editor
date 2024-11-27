@@ -6,11 +6,11 @@ namespace LocalTreeData.Interfaces
 {
     public interface INodeService
     {  
-        public Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input);
-        public Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> inputList);
-        public Task<ActionResult<Node>> Create(CreateNode input);
-        public Task<ActionResult<Node>> CreateRoot(CreateNode input);
-        public Task<ActionResult<Node>> DeleteNode(Guid id);
-        public Task<ActionResult<Node>> DeleteCascade(Guid id);
+        public Task<ActionResult<NodeDto>> PutNode(Guid id, UpdateNode input);
+        public Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> inputList);
+        public Task<ActionResult<NodeDto>> Create(CreateNode input);
+        public Task<ActionResult<NodeDto>> CreateRoot(CreateNode input);
+        public Task<ActionResult<NodeDto>> DeleteNode(Guid id);
+        public Task<ActionResult<NodeDto>> DeleteCascade(Guid id);
     }
 }
