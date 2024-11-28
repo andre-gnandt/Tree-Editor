@@ -101,10 +101,10 @@ namespace LocalTreeData.Controllers
         }
 
         // DELETE: api/Nodes/5
-        [HttpDelete("Delete-One{id}")]
-        public async Task<ActionResult<NodeDto>> DeleteNode(Guid id)
+        [HttpPut("Delete-One/{parentId}")]
+        public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node)
         {
-            return await _nodeService.DeleteNode(id);
+            return await _nodeService.DeleteNode(parentId, node);
         }
 
         [HttpDelete("Delete-Cascade{id}")]

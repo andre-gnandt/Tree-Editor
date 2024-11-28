@@ -10,7 +10,7 @@ namespace LocalTreeData.Interfaces
         public Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> inputList);
         public Task<ActionResult<NodeDto>> Create(CreateNode input);
         public Task<ActionResult<NodeDto>> CreateRoot(CreateNode input);
-        public Task<ActionResult<NodeDto>> DeleteNode(Guid id);
+        public Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node);
         public Task<ActionResult<NodeDto>> DeleteCascade(Guid id);
     }
 }

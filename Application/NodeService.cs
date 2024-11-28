@@ -160,18 +160,26 @@ namespace LocalTreeData.Application
             node.IsDeleted = true;
             return await Update(node);
         }
-        
-        public async Task<ActionResult<NodeDto>> DeleteNode(Guid id)
+
+        private async Task<Node> Delete(Node node)
+        {
+            node.IsDeleted = true;
+            return await Update(node);
+        }
+
+        public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode input)
         {
             Node.LoadFiles(false);
             Node.LoadChildren(true);
-            
-            Node tree = _context.Nodes.Find(id);
-            Node node = await Delete(id);
 
-            foreach(Node child in tree.Children)
+            var children = input.Children;
+            input.Children = [];
+            
+            Node node = await Delete(CustomMapper.Map(input));
+
+            foreach(Node child in children)
             {
-                child.NodeId = tree.NodeId;
+                child.NodeId = parentId;
                 await Update(child);
             }
 
@@ -183,10 +191,9 @@ namespace LocalTreeData.Application
             Node.LoadFiles(false);
             Node.LoadChildren(true);
 
-            Node tree = _context.Nodes.Find(id);
             Node node = await Delete(id);
 
-            await DeleteTree(tree);
+            await DeleteTree(node);
 
             return CustomMapper.Map(node);
 
