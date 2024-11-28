@@ -32,10 +32,10 @@ namespace LocalTreeData.Application
             return node;
         }
 
-        private async Task<List<Models.File>> UpdateNodeFiles(Node input, List<Models.File> filesAfter)
+        private async Task<List<FilePreview>> UpdateNodeFiles(Node input, List<Models.File> filesAfter)
         {
             var filesBefore = _context.Files.Where(q => q.NodeId == input.Id && !q.IsDeleted).ToList();
-            
+
             foreach (var file in filesAfter)
             {
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
@@ -57,25 +57,27 @@ namespace LocalTreeData.Application
                 }
             }
 
-            return null;
+            return CustomMapper.Map(filesAfter);
         }
 
-        private async Task<Node> UpdateNode(Guid id, UpdateNode input)
+        private async Task<NodeDto> UpdateNode(Guid id, UpdateNode input)
         {
             var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
             
-            await UpdateNodeFiles(node, filesAfter);
+            var files = await UpdateNodeFiles(node, filesAfter);
+            var nodeDto = CustomMapper.Map(await Update(node));
+            nodeDto.Files = files;
             
-            return await Update(node);
+            return nodeDto;
         }
 
-        public async Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> inputList)
+        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> inputList)
         {
             Node.LoadFiles(true);
             Node.LoadChildren(false);
 
-            List<Node> updatedNodes = new List<Node>();
+            List<NodeDto> updatedNodes = new List<NodeDto>();
             foreach (var input in inputList)
             {
                 updatedNodes.Add(await UpdateNode(input.Id, input));
@@ -84,7 +86,7 @@ namespace LocalTreeData.Application
             return updatedNodes;
         }
 
-        public async Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input)
+        public async Task<ActionResult<NodeDto>> PutNode(Guid id, UpdateNode input)
         {
             Node.LoadFiles(true);
             Node.LoadChildren(false);
@@ -92,7 +94,7 @@ namespace LocalTreeData.Application
             return await UpdateNode(id, input);
         }
 
-        private async Task<Node> CreateNode(CreateNode input)
+        private async Task<NodeDto> CreateNode(CreateNode input)
         {
             var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
@@ -104,31 +106,38 @@ namespace LocalTreeData.Application
             {
                 file.NodeId = node.Id;
             }
-            await UpdateNodeFiles(node, filesAfter);
+            var files = await UpdateNodeFiles(node, filesAfter);
+            if (input.ThumbnailId != null) await Update(node);
+            var nodeDto = CustomMapper.Map(node);
+            nodeDto.Files = files;
 
-            return node;
+            return nodeDto;
         }
 
-        public async Task<ActionResult<Node>> CreateRoot(CreateNode input)
+        public async Task<ActionResult<NodeDto>> CreateRoot(CreateNode input)
         {
             Node.LoadChildren(false);
             Node.LoadFiles(true);
 
-            List<Node> findRootNode = _context.Nodes.Where(q => q.NodeId == null && !q.IsDeleted).ToList();
-            Node oldRootNode = findRootNode.Count > 0 ? findRootNode[0] : null;
+            Tree tree = await _context.Trees.FindAsync(input.TreeId);
+            Node oldRootNode = tree.RootId != null ? await _context.Nodes.FindAsync(tree.RootId) : null;
 
-            Node newRoot = await CreateNode(input);
+            NodeDto newRoot = await CreateNode(input);
 
             if (oldRootNode != null)
             {
                 oldRootNode.NodeId = newRoot.Id;
                 await Update(oldRootNode);
             }
+            
+            tree.RootId = newRoot.Id;
+            _context.Entry(tree).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
 
             return newRoot;
         }
 
-        public async Task<ActionResult<Node>> Create(CreateNode input)
+        public async Task<ActionResult<NodeDto>> Create(CreateNode input)
         {
             Node.LoadChildren(false);
             Node.LoadFiles(true);
@@ -151,35 +160,42 @@ namespace LocalTreeData.Application
             node.IsDeleted = true;
             return await Update(node);
         }
-        
-        public async Task<ActionResult<Node>> DeleteNode(Guid id)
+
+        private async Task<Node> Delete(Node node)
+        {
+            node.IsDeleted = true;
+            return await Update(node);
+        }
+
+        public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode input)
         {
             Node.LoadFiles(false);
             Node.LoadChildren(true);
-            
-            Node tree = _context.Nodes.Find(id);
-            Node node = await Delete(id);
 
-            foreach(Node child in tree.Children)
+            var children = input.Children;
+            input.Children = [];
+            
+            Node node = await Delete(CustomMapper.Map(input));
+
+            foreach(Node child in children)
             {
-                child.NodeId = tree.NodeId;
+                child.NodeId = parentId;
                 await Update(child);
             }
 
-            return node;
+            return CustomMapper.Map(node);
         }
 
-        public async Task<ActionResult<Node>> DeleteCascade(Guid id)
+        public async Task<ActionResult<NodeDto>> DeleteCascade(Guid id)
         {
             Node.LoadFiles(false);
             Node.LoadChildren(true);
 
-            Node tree = _context.Nodes.Find(id);
             Node node = await Delete(id);
 
-            await DeleteTree(tree);
+            await DeleteTree(node);
 
-            return node;
+            return CustomMapper.Map(node);
 
         }
     }

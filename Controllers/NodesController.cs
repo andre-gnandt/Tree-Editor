@@ -68,7 +68,7 @@ namespace LocalTreeData.Controllers
         }
 
         [HttpPut("Many/{id}")]
-        public async Task<ActionResult<List<Node>>> UpdateMany(Guid id, List<UpdateNode> input)
+        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> input)
         {
             return await _nodeService.UpdateMany(id, input);
         }
@@ -76,7 +76,7 @@ namespace LocalTreeData.Controllers
         // PUT: api/Nodes/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<ActionResult<Node>> PutNode(Guid id, UpdateNode input)
+        public async Task<ActionResult<NodeDto>> PutNode(Guid id, UpdateNode input)
         {   
             if (id != input.Id)
             {
@@ -86,32 +86,29 @@ namespace LocalTreeData.Controllers
             return await _nodeService.PutNode(id, input);
         }
 
-        [HttpPost]
-
-
         // POST: api/Nodes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Node>> Create(CreateNode input)
+        public async Task<ActionResult<NodeDto>> Create(CreateNode input)
         {
             return await _nodeService.Create(input);
         }
 
         [HttpPost("Root")]
-        public async Task<ActionResult<Node>> CreateRoot(CreateNode input)
+        public async Task<ActionResult<NodeDto>> CreateRoot(CreateNode input)
         { 
             return await _nodeService.CreateRoot(input);
         }
 
         // DELETE: api/Nodes/5
-        [HttpDelete("Delete-One{id}")]
-        public async Task<ActionResult<Node>> DeleteNode(Guid id)
+        [HttpPut("Delete-One/{parentId}")]
+        public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node)
         {
-            return await _nodeService.DeleteNode(id);
+            return await _nodeService.DeleteNode(parentId, node);
         }
 
         [HttpDelete("Delete-Cascade{id}")]
-        public async Task<ActionResult<Node>> DeleteCascade(Guid id)
+        public async Task<ActionResult<NodeDto>> DeleteCascade(Guid id)
         {
             return await _nodeService.DeleteCascade(id);
         }

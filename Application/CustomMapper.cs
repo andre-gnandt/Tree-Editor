@@ -28,6 +28,7 @@ namespace LocalTreeData.Application
             {
                 Id = node.Id,
                 NodeId = node.NodeId,
+                TreeId = node.TreeId,
                 Title = node.Title,
                 Description = node.Description,
                 Data = node.Data,
@@ -109,6 +110,7 @@ namespace LocalTreeData.Application
             {
                 Id = Guid.Empty,
                 NodeId = node.NodeId,
+                TreeId = node.TreeId,
                 Data = node.Data,
                 Children = node.Children,
                 Files = Map(node.Files.ToList()),
@@ -146,6 +148,7 @@ namespace LocalTreeData.Application
             return new Node { 
                 Id = node.Id,
                 NodeId = node.NodeId,
+                TreeId = node.TreeId,
                 Data = node.Data,
                 Children = node.Children,
                 Files = Map(node.Files.ToList()),
@@ -157,6 +160,19 @@ namespace LocalTreeData.Application
                 ThumbnailId = node.ThumbnailId,
                 IsDeleted = node.IsDeleted,
             }; 
+        }
+
+        public static Tree Map(CreateTree tree)
+        {
+
+            return new Tree
+            {
+                Id = Guid.Empty,
+                Name = tree.Name,
+                Description = tree.Description,
+                RootId = null,
+                IsDeleted = false
+            };
         }
     }
 }
