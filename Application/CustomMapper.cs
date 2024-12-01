@@ -103,6 +103,18 @@ namespace LocalTreeData.Application
             return fileList;
         }
 
+        public static List<Node> Map(List<CreateNode> nodes)
+        { 
+            List<Node> list = new List<Node>();
+
+            foreach (CreateNode node in nodes)
+            { 
+                list.Add(Map(node));
+            }
+
+            return list;
+        }
+
         public static Node Map(CreateNode node)
         {
 
@@ -112,7 +124,7 @@ namespace LocalTreeData.Application
                 NodeId = node.NodeId,
                 TreeId = node.TreeId,
                 Data = node.Data,
-                Children = node.Children,
+                Children = Map(node.Children.ToList()),
                 Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
@@ -122,6 +134,18 @@ namespace LocalTreeData.Application
                 ThumbnailId = node.ThumbnailId,
                 IsDeleted = node.IsDeleted,
             };
+        }
+
+        public static List<Node> Map(List<UpdateNode> nodes)
+        {
+            List<Node> list = new List<Node>();
+
+            foreach (UpdateNode node in nodes)
+            {
+                list.Add(Map(node));
+            }
+
+            return list;
         }
 
         public static Node Map(UpdateNode node) 
@@ -150,7 +174,7 @@ namespace LocalTreeData.Application
                 NodeId = node.NodeId,
                 TreeId = node.TreeId,
                 Data = node.Data,
-                Children = node.Children,
+                Children = Map(node.Children.ToList()),
                 Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
