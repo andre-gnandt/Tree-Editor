@@ -59,6 +59,8 @@ namespace LocalTreeData.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Tree>> UpdateTreeDetails(Guid id, Tree tree)
         {
+            Guid? RootId = (await _context.Trees.FindAsync(id)).RootId;
+            tree.RootId = RootId;
             _context.Entry(tree).State = EntityState.Modified;
 
             try
