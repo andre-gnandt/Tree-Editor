@@ -120,7 +120,7 @@ namespace LocalTreeData.Application
 
             return new Node
             {
-                Id = Guid.Empty,
+                Id = Guid.NewGuid(),
                 NodeId = node.NodeId,
                 TreeId = node.TreeId,
                 Data = node.Data,
@@ -191,7 +191,7 @@ namespace LocalTreeData.Application
 
             return new Tree
             {
-                Id = Guid.Empty,
+                Id = Guid.NewGuid(),
                 Name = tree.Name,
                 Description = tree.Description,
                 RootId = null,
