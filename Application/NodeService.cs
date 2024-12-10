@@ -40,6 +40,7 @@ namespace LocalTreeData.Application
             {
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
                 {
+                    file.Id = Guid.NewGuid();
                     _context.Files.Add(file);
                     await _context.SaveChangesAsync();
 
@@ -64,6 +65,7 @@ namespace LocalTreeData.Application
         {
             var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
+            node.Files = [];
             
             var files = await UpdateNodeFiles(node, filesAfter);
             var nodeDto = CustomMapper.Map(await Update(node));
@@ -98,7 +100,7 @@ namespace LocalTreeData.Application
         {
             var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
-            
+            node.Files = [];
             _context.Nodes.Add(node);
             await _context.SaveChangesAsync();
 
@@ -170,17 +172,18 @@ namespace LocalTreeData.Application
         public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode input)
         {
             Node.LoadFiles(false);
-            Node.LoadChildren(true);
+            Node.LoadChildren(false);
 
             var children = input.Children;
             input.Children = [];
+
             
             Node node = await Delete(CustomMapper.Map(input));
-
-            foreach(Node child in children)
+            
+            foreach (UpdateNode child in children)
             {
                 child.NodeId = parentId;
-                await Update(child);
+                await Update(CustomMapper.Map(child));
             }
 
             return CustomMapper.Map(node);

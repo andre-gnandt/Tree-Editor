@@ -35,7 +35,6 @@ namespace LocalTreeData.Application
                 Number = node.Number,
                 RankId = node.RankId,
                 ThumbnailId = node.ThumbnailId,
-                IsDeleted = node.IsDeleted,
                 Level = node.Level,
                 Files = Map(node.Files.ToList())
             };
@@ -59,8 +58,7 @@ namespace LocalTreeData.Application
                 Name = file.Name,
                 Description = file.Description, 
                 Size = file.Size,
-                Type = file.Type,
-                IsDeleted = file.IsDeleted,
+                Type = file.Type
             };
         }
 
@@ -75,7 +73,7 @@ namespace LocalTreeData.Application
                 Description = filePreview.Description,
                 Size = filePreview.Size,
                 Type = filePreview.Type,
-                IsDeleted = filePreview.IsDeleted,
+                IsDeleted = false,
             };
         }
 
@@ -103,16 +101,28 @@ namespace LocalTreeData.Application
             return fileList;
         }
 
+        public static List<Node> Map(List<CreateNode> nodes)
+        { 
+            List<Node> list = new List<Node>();
+
+            foreach (CreateNode node in nodes)
+            { 
+                list.Add(Map(node));
+            }
+
+            return list;
+        }
+
         public static Node Map(CreateNode node)
         {
 
             return new Node
             {
-                Id = Guid.Empty,
+                Id = Guid.NewGuid(),
                 NodeId = node.NodeId,
                 TreeId = node.TreeId,
                 Data = node.Data,
-                Children = node.Children,
+                Children = Map(node.Children.ToList()),
                 Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
@@ -120,8 +130,20 @@ namespace LocalTreeData.Application
                 Description = node.Description,
                 RankId = node.RankId,
                 ThumbnailId = node.ThumbnailId,
-                IsDeleted = node.IsDeleted,
+                IsDeleted = false
             };
+        }
+
+        public static List<Node> Map(List<UpdateNode> nodes)
+        {
+            List<Node> list = new List<Node>();
+
+            foreach (UpdateNode node in nodes)
+            {
+                list.Add(Map(node));
+            }
+
+            return list;
         }
 
         public static Node Map(UpdateNode node) 
@@ -150,7 +172,7 @@ namespace LocalTreeData.Application
                 NodeId = node.NodeId,
                 TreeId = node.TreeId,
                 Data = node.Data,
-                Children = node.Children,
+                Children = Map(node.Children.ToList()),
                 Files = Map(node.Files.ToList()),
                 Level = node.Level,
                 Number = node.Number,
@@ -158,7 +180,7 @@ namespace LocalTreeData.Application
                 Description = node.Description,
                 RankId = node.RankId,
                 ThumbnailId = node.ThumbnailId,
-                IsDeleted = node.IsDeleted,
+                IsDeleted = false
             }; 
         }
 
@@ -167,12 +189,46 @@ namespace LocalTreeData.Application
 
             return new Tree
             {
-                Id = Guid.Empty,
+                Id = Guid.NewGuid(),
                 Name = tree.Name,
                 Description = tree.Description,
                 RootId = null,
                 IsDeleted = false
             };
+        }
+
+        public static TreeDto Map(Tree tree)
+        {
+            return new TreeDto
+            {
+                Id = tree.Id,
+                Name = tree.Name,
+                Description= tree.Description,
+                RootId= tree.RootId
+            };
+        }
+
+        public static Tree Map(TreeDto tree)
+        {
+            return new Tree
+            {
+                Id = tree.Id,
+                Name = tree.Name,
+                Description = tree.Description,
+                RootId = tree.RootId,
+                IsDeleted = false
+            };
+        }
+
+        public static List<TreeDto> Map(List<Tree> trees)
+        { 
+            List<TreeDto> treeDtos = new List<TreeDto>();
+            foreach (Tree tree in trees)
+            { 
+                treeDtos.Add(Map(tree));
+            }
+
+            return treeDtos;
         }
     }
 }
