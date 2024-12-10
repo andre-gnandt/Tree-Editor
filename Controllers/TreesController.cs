@@ -28,7 +28,7 @@ namespace LocalTreeData.Controllers
 
             NodeDto root = tree.RootId != null ? CustomMapper.Map(await _context.Nodes.FindAsync(tree.RootId)) : null;
             
-            return new FullTree { Tree = tree, Root = root};
+            return new FullTree { Tree = CustomMapper.Map(tree), Root = root};
         }
 
         [HttpGet("Tree/{id}")]
@@ -43,21 +43,21 @@ namespace LocalTreeData.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Tree>> GetTreeDetails(Guid id)
+        public async Task<ActionResult<TreeDto>> GetTreeDetails(Guid id)
         {
 
-            return await  _context.Trees.FindAsync(id);
+            return CustomMapper.Map(await  _context.Trees.FindAsync(id));
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Tree>>> GetTreeList()
+        public async Task<ActionResult<IEnumerable<TreeDto>>> GetTreeList()
         {
 
-            return _context.Trees.Where(q => !q.IsDeleted).OrderBy(q => q.Name).ToList();
+            return CustomMapper.Map( _context.Trees.Where(q => !q.IsDeleted).OrderBy(q => q.Name).ToList());
         }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<Tree>> UpdateTreeDetails(Guid id, UpdateTree input)
+        public async Task<ActionResult<TreeDto>> UpdateTreeDetails(Guid id, UpdateTree input)
         {
             Tree tree = (await _context.Trees.FindAsync(id));
             tree.Name = input.Name;
@@ -73,22 +73,22 @@ namespace LocalTreeData.Controllers
 
             }
 
-            return tree;
+            return CustomMapper.Map(tree);
         }
 
         [HttpPost]
-        public async Task<ActionResult<Tree>> CreateTree(CreateTree input)
+        public async Task<ActionResult<TreeDto>> CreateTree(CreateTree input)
         {
             Tree tree = CustomMapper.Map(input);
 
             _context.Trees.Add(tree);
             await _context.SaveChangesAsync();
 
-            return tree;
+            return CustomMapper.Map(tree);
         }
 
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Tree>> DeleteTree(Guid id)
+        public async Task<ActionResult<TreeDto>> DeleteTree(Guid id)
         {
             Tree tree = await _context.Trees.FindAsync(id);
             tree.IsDeleted = true;
@@ -104,7 +104,7 @@ namespace LocalTreeData.Controllers
 
             }
 
-            return tree;
+            return CustomMapper.Map(tree);
         }
     }
 }

@@ -18,6 +18,5 @@ namespace LocalTreeData.Dtos
         public string? Description { get; set; }
         public Guid? RankId { get; set; }
         public string? ThumbnailId { get; set; }
-        public bool IsDeleted { get; set; }
     }
 }
