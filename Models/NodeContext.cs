@@ -13,5 +13,6 @@ namespace LocalTreeData.Models
         public DbSet<File> Files { get; set; }
         public DbSet<Node> Nodes { get; set; }
         public DbSet<Tree> Trees { get; set; }
+        public DbSet<ConfigType> ConfigTypes { get; set; }
     }
 }
