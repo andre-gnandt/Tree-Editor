@@ -3,6 +3,11 @@
 INSERT Into ConfigTypes (Id, Name, Description, CreatedDate, Value)
 Values (NEWID(), 'Countries', 'Countries', GETDATE(), '[
   {
+    "countryName": "None",
+    "countryShortCode": "NA",
+    "regions": []
+  },
+  {
     "countryName": "Afghanistan",
     "countryShortCode": "AF",
     "regions": [
