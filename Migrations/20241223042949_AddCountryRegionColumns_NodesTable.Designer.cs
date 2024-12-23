@@ -4,6 +4,7 @@ using LocalTreeData.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LocalTreeData.Migrations
 {
     [DbContext(typeof(NodeContext))]
-    partial class NodeContextModelSnapshot : ModelSnapshot
+    [Migration("20241223042949_AddCountryRegionColumns_NodesTable")]
+    partial class AddCountryRegionColumns_NodesTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
