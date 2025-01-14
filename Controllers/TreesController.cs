@@ -10,9 +10,9 @@ namespace LocalTreeData.Controllers
     [ApiController]
     public class TreesController
     {
-        private readonly NodeContext _context;
+        private readonly EfCore.AppContext _context;
 
-        public TreesController(NodeContext context)
+        public TreesController(EfCore.AppContext context)
         {
             _context = context;
         }

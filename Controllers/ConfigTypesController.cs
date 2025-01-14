@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LocalTreeData.Models;
-using LocalTreeData.Dtos;
-using LocalTreeData.Application;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
@@ -11,9 +9,9 @@ namespace LocalTreeData.Controllers
     [ApiController]
     public class ConfigTypesController : ControllerBase
     {
-        private readonly NodeContext _context;
+        private readonly EfCore.AppContext _context;
 
-        public ConfigTypesController(NodeContext context)
+        public ConfigTypesController(EfCore.AppContext context)
         {
             _context = context;
         }
@@ -26,7 +24,7 @@ namespace LocalTreeData.Controllers
             ConfigType countries = ( await _context.ConfigTypes.AnyAsync(q => q.Name == "Countries")) ? await _context.ConfigTypes.FirstAsync(configType => configType.Name == "Countries") : null;
             if (countries == null) 
             {
-                throw new NotImplementedException("No Database Record Configuration! Missing the configuration of the country-region JSON data in the ConfigTypes table. See 'SQLDataBaseRecordConfigs' for the insertion query.");
+                throw new NotImplementedException("No Database Record Configuration! Missing the configuration of the country-region JSON data in the ConfigTypes table. See 'SQLDataBaseRecordConfigs' repository on my github for the insertion query.");
             }
      
             return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(countries.Value);

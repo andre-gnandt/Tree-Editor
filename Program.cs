@@ -1,10 +1,8 @@
-using Microsoft.Data.SqlClient;
-using LocalTreeData.Models;
-using Microsoft.EntityFrameworkCore.SqlServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Proxies;
-using LocalTreeData.Interfaces;
+using LocalTreeData.ApplicationInterfaces;
 using LocalTreeData.Application;
+using LocalTreeData.EfCoreInterfaces;
+using LocalTreeData.EfCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +17,7 @@ builder.Services.AddCors(options =>
 });
 builder.Services.AddControllers().AddNewtonsoftJson(options =>
     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
-builder.Services.AddDbContext<NodeContext>(
+builder.Services.AddDbContext<LocalTreeData.EfCore.AppContext>(
     options => options.UseSqlServer("Server=(LocalDb)\\MSSQLLocalDB;Database=local"));
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -27,6 +25,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMvc();
 builder.Services.AddScoped<INodeService, NodeService>();
+builder.Services.AddScoped<INodeRepository, NodeRepository>();
+builder.Services.AddScoped<ITreeRepository, TreeRepository>();
 
 var app = builder.Build();
 

@@ -1,64 +1,42 @@
 ﻿using LocalTreeData.Dtos;
 using LocalTreeData.Models;
+using LocalTreeData.ApplicationInterfaces;
+using LocalTreeData.EfCore;
+using LocalTreeData.EfCoreInterfaces;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using LocalTreeData.Interfaces;
-using Microsoft.CodeAnalysis;
-using System.Xml.Linq;
 
 namespace LocalTreeData.Application
 {
     public class NodeService : INodeService
     {
-        private readonly NodeContext _context;
-        public NodeService(NodeContext nodeContext)
+        private readonly INodeRepository _nodeRepository;
+        private readonly ITreeRepository _treeRepository;
+
+        public NodeService(INodeRepository nodeRepository, ITreeRepository treeRepository)
         { 
-            _context = nodeContext;
+            _nodeRepository = nodeRepository;
+            _treeRepository = treeRepository;
         }
 
-        private async Task<Node> Update(Node node)
+        public async Task<ActionResult<NodeDto>> GetNodeAsync(Guid id)
         {
-            _context.Entry(node).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new DbUpdateConcurrencyException("Concurrent Update of Node Entity Record with Id = " + node.Id.ToString());
-            }
-
-            return node;
+            Node.LoadFiles(true);
+            Node.LoadChildren(false);
+            return CustomMapper.Map(await _nodeRepository.GetNodeAsync(id));
         }
 
-        private async Task<List<FilePreview>> UpdateNodeFiles(Node input, List<Models.File> filesAfter)
+        public async Task<ActionResult<IEnumerable<NodeDto>>> GetTreesAsync()
         {
-            var filesBefore = _context.Files.Where(q => q.NodeId == input.Id && !q.IsDeleted).ToList();
+            Node.LoadFiles(true);
+            Node.LoadChildren(true);
+            return CustomMapper.Map((await _nodeRepository.GetTreesAsync()).ToList());
+        }
 
-            foreach (var file in filesAfter)
-            {
-                if (filesBefore.Find(q => q.Id == file.Id) == null)
-                {
-                    file.Id = Guid.NewGuid();
-                    _context.Files.Add(file);
-                    await _context.SaveChangesAsync();
-
-                    if (input.ThumbnailId == file.Name) input.ThumbnailId = file.Id.ToString();
-                }
-            }
-
-            foreach (var file in filesBefore)
-            {
-                if (filesAfter.Find(q => q.Id == file.Id) == null)
-                {
-                    file.IsDeleted = true;
-                    _context.Entry(file).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                }
-            }
-
-            return CustomMapper.Map(filesAfter);
+        public async Task<ActionResult<IEnumerable<NodeDto>>> GetNodesAsync()
+        {
+            Node.LoadFiles(false);
+            Node.LoadChildren(false);
+            return CustomMapper.Map((await _nodeRepository.GetNodesAsync()).ToList());
         }
 
         private async Task<NodeDto> UpdateNode(Guid id, UpdateNode input)
@@ -67,8 +45,8 @@ namespace LocalTreeData.Application
             Node node = CustomMapper.Map(input);
             node.Files = [];
             
-            var files = await UpdateNodeFiles(node, filesAfter);
-            var nodeDto = CustomMapper.Map(await Update(node));
+            var files = CustomMapper.Map(await _nodeRepository.UpdateNodeFilesAsync(node, filesAfter));
+            var nodeDto = CustomMapper.Map(await _nodeRepository.UpdateAsync(node));
             nodeDto.Files = files;
             
             return nodeDto;
@@ -103,18 +81,16 @@ namespace LocalTreeData.Application
 
         private async Task<NodeDto> CreateNode(CreateNode input)
         {
-            var filesAfter = CustomMapper.Map(input.Files.ToList());
+            var filesAfter = input.Files.ToList();
             Node node = CustomMapper.Map(input);
-            node.Files = [];
-            _context.Nodes.Add(node);
-            await _context.SaveChangesAsync();
+            await _nodeRepository.CreateAsync(node);
 
             foreach (var file in filesAfter)
             {
                 file.NodeId = node.Id;
             }
-            var files = await UpdateNodeFiles(node, filesAfter);
-            if (input.ThumbnailId != null) await Update(node);
+            var files = CustomMapper.Map(await _nodeRepository.UpdateNodeFilesAsync(node, CustomMapper.Map(filesAfter)));
+            if (input.ThumbnailId != null) await _nodeRepository.UpdateAsync(node);
             var nodeDto = CustomMapper.Map(node);
             nodeDto.Files = files;
 
@@ -126,20 +102,19 @@ namespace LocalTreeData.Application
             Node.LoadChildren(false);
             Node.LoadFiles(true);
 
-            Tree tree = await _context.Trees.FindAsync(input.TreeId);
-            Node oldRootNode = tree.RootId != null ? await _context.Nodes.FindAsync(tree.RootId) : null;
+            Tree tree = await _treeRepository.GetAsync((Guid)input.TreeId);
+            Node oldRootNode = tree.RootId != null ? (await _nodeRepository.GetNodeAsync((Guid)tree.RootId)) : null;
 
             NodeDto newRoot = await CreateNode(input);
 
             if (oldRootNode != null)
             {
                 oldRootNode.NodeId = newRoot.Id;
-                await Update(oldRootNode);
+                await _nodeRepository.UpdateAsync(oldRootNode);
             }
             
             tree.RootId = newRoot.Id;
-            _context.Entry(tree).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            await _treeRepository.UpdateAsync(tree);
 
             return newRoot;
         }
@@ -152,28 +127,6 @@ namespace LocalTreeData.Application
             return await CreateNode(input);
         }
 
-        private async Task DeleteTree(Node node)
-        {
-            foreach (var child in node.Children)
-            {
-                await Delete(child.Id);
-                await DeleteTree(child);
-            }
-        }
-
-        private async Task<Node> Delete(Guid id)
-        {
-            var node = await _context.Nodes.FindAsync(id);
-            node.IsDeleted = true;
-            return await Update(node);
-        }
-
-        private async Task<Node> Delete(Node node)
-        {
-            node.IsDeleted = true;
-            return await Update(node);
-        }
-
         public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode input)
         {
             Node.LoadFiles(false);
@@ -183,12 +136,12 @@ namespace LocalTreeData.Application
             input.Children = [];
 
             
-            Node node = await Delete(CustomMapper.Map(input));
+            Node node = await _nodeRepository.DeleteAsync(CustomMapper.Map(input));
             
             foreach (UpdateNode child in children)
             {
                 child.NodeId = parentId;
-                await Update(CustomMapper.Map(child));
+                await _nodeRepository.UpdateAsync(CustomMapper.Map(child));
             }
 
             return CustomMapper.Map(node);
@@ -199,9 +152,8 @@ namespace LocalTreeData.Application
             Node.LoadFiles(false);
             Node.LoadChildren(true);
 
-            Node node = await Delete(id);
-
-            await DeleteTree(node);
+            Node node = await _nodeRepository.DeleteAsync(id);
+            await _nodeRepository.DeleteTreeAsync(node);
 
             return CustomMapper.Map(node);
 

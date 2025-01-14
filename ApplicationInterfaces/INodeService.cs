@@ -1,8 +1,7 @@
 ﻿using LocalTreeData.Dtos;
-using LocalTreeData.Models;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LocalTreeData.Interfaces
+namespace LocalTreeData.ApplicationInterfaces
 {
     public interface INodeService
     {  
@@ -12,5 +11,8 @@ namespace LocalTreeData.Interfaces
         public Task<ActionResult<NodeDto>> CreateRoot(CreateNode input);
         public Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node);
         public Task<ActionResult<NodeDto>> DeleteCascade(Guid id);
+        public Task<ActionResult<NodeDto>> GetNodeAsync(Guid id);
+        public Task<ActionResult<IEnumerable<NodeDto>>> GetTreesAsync();
+        public Task<ActionResult<IEnumerable<NodeDto>>> GetNodesAsync();
     }
 }
