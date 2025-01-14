@@ -19,6 +19,8 @@ namespace LocalTreeData.Models
         public Guid Id { get; set; }
         public Guid? NodeId { get; set;}
         public Guid? TreeId { get; set; }
+        public string? Country { get; set; }
+        public string? Region { get; set; }
         public string? Data { get; set; }
         public string? ThumbnailId { get; set; }
         public ICollection <Node> Children 

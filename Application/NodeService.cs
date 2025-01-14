@@ -26,7 +26,7 @@ namespace LocalTreeData.Application
             }
             catch (DbUpdateConcurrencyException)
             {
-
+                throw new DbUpdateConcurrencyException("Concurrent Update of Node Entity Record with Id = " + node.Id.ToString());
             }
 
             return node;
@@ -74,7 +74,7 @@ namespace LocalTreeData.Application
             return nodeDto;
         }
 
-        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> inputList)
+        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid treeId, List<UpdateNode> inputList)
         {
             Node.LoadFiles(true);
             Node.LoadChildren(false);
@@ -82,6 +82,11 @@ namespace LocalTreeData.Application
             List<NodeDto> updatedNodes = new List<NodeDto>();
             foreach (var input in inputList)
             {
+                if (input.TreeId != treeId)
+                {
+                    throw new ArgumentOutOfRangeException("Node does not belong to tree for updates.");
+                }
+
                 updatedNodes.Add(await UpdateNode(input.Id, input));
             }
 

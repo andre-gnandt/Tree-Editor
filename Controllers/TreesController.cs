@@ -70,7 +70,7 @@ namespace LocalTreeData.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-
+                throw new DbUpdateConcurrencyException("Concurrent Update of Tree Entity Record with Id = " + id.ToString());
             }
 
             return CustomMapper.Map(tree);
@@ -101,7 +101,7 @@ namespace LocalTreeData.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-
+                throw new DbUpdateConcurrencyException("Concurrent Update of Tree Entity Record with Id = "+id.ToString());
             }
 
             return CustomMapper.Map(tree);

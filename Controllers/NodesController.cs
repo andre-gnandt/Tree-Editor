@@ -67,10 +67,10 @@ namespace LocalTreeData.Controllers
             return CustomMapper.Map(node);
         }
 
-        [HttpPut("Many/{id}")]
-        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid id, List<UpdateNode> input)
+        [HttpPut("Many/{treeId}")]
+        public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid treeId, List<UpdateNode> input)
         {
-            return await _nodeService.UpdateMany(id, input);
+            return await _nodeService.UpdateMany(treeId, input);
         }
 
         // PUT: api/Nodes/5
@@ -101,7 +101,7 @@ namespace LocalTreeData.Controllers
         }
 
         // DELETE: api/Nodes/5
-        [HttpPut("Delete-One/{parentId}")]
+        [HttpDelete("Delete-One/{parentId}")]
         public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node)
         {
             return await _nodeService.DeleteNode(parentId, node);
