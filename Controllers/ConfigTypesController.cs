@@ -17,12 +17,19 @@ namespace LocalTreeData.Controllers
         {
             _context = context;
         }
-
+        
+        //This requires a configuration insertion of the country region json into the ConfigTypes table
+        //See SQLDataBaseRecordConfigs
         [HttpGet("Countries")]
         public async Task<ActionResult<List<Dictionary<string, object>>>> GetCountries()
         {
-            string CountryJSONString = (await _context.ConfigTypes.FirstAsync(configType => configType.Name == "Countries")).Value;        
-            return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(CountryJSONString);
+            ConfigType countries = ( await _context.ConfigTypes.AnyAsync(q => q.Name == "Countries")) ? await _context.ConfigTypes.FirstAsync(configType => configType.Name == "Countries") : null;
+            if (countries == null) 
+            {
+                throw new NotImplementedException("No Configuration! Missing the configuration insertion of the country-region JSON data into the ConfigTypes table. See 'SQLDataBaseRecordConfigs' for the insertion query.");
+            }
+     
+            return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(countries.Value);
         }
 
     }
