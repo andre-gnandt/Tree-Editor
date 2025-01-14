@@ -26,7 +26,7 @@ namespace LocalTreeData.Controllers
             ConfigType countries = ( await _context.ConfigTypes.AnyAsync(q => q.Name == "Countries")) ? await _context.ConfigTypes.FirstAsync(configType => configType.Name == "Countries") : null;
             if (countries == null) 
             {
-                throw new NotImplementedException("No Database Record Configuration! Missing the configuration of the country-region JSON data into the ConfigTypes table. See 'SQLDataBaseRecordConfigs' for the insertion query.");
+                throw new NotImplementedException("No Database Record Configuration! Missing the configuration of the country-region JSON data in the ConfigTypes table. See 'SQLDataBaseRecordConfigs' for the insertion query.");
             }
      
             return JsonConvert.DeserializeObject<List<Dictionary<string, object>>>(countries.Value);
