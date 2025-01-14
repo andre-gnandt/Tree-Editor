@@ -1,18 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using LocalTreeData.Models;
 
-namespace LocalTreeData.Models
+namespace LocalTreeData.EfCore
 {
-    public class NodeContext : DbContext
+    public class AppContext : DbContext
     {
-        public NodeContext(DbContextOptions<NodeContext> options)
+        public AppContext(DbContextOptions<AppContext> options)
         : base(options)
         {
-            //this.ChangeTracker.LazyLoadingEnabled = false;
         }
 
-        public DbSet<File> Files { get; set; }
+        public DbSet<Models.File> Files { get; set; }
         public DbSet<Node> Nodes { get; set; }
         public DbSet<Tree> Trees { get; set; }
         public DbSet<ConfigType> ConfigTypes { get; set; }
     }
 }
+

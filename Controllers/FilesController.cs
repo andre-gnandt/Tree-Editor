@@ -9,9 +9,9 @@ namespace LocalTreeData.Controllers
     [ApiController]
     public class FilesController : ControllerBase
     {
-        private readonly NodeContext _context;
+        private readonly EfCore.AppContext _context;
 
-        public FilesController(NodeContext context)
+        public FilesController(EfCore.AppContext context)
         {
             _context = context;
         }
