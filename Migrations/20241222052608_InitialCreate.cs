@@ -12,7 +12,21 @@ namespace LocalTreeData.Migrations
         
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            /*
+            migrationBuilder.CreateTable(
+               name: "Trees",
+               columns: table => new
+               {
+                   Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                   Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                   Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                   RootId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                   IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+               },
+               constraints: table =>
+               {
+                   table.PrimaryKey("PK_Trees", x => x.Id);
+               });
+
             migrationBuilder.CreateTable(
                 name: "Nodes",
                 columns: table => new
@@ -37,21 +51,11 @@ namespace LocalTreeData.Migrations
                         column: x => x.NodeId,
                         principalTable: "Nodes",
                         principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Trees",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    RootId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Trees", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Nodes_Trees_TreeId",
+                        column: x => x.TreeId,
+                        principalTable: "Trees",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -86,22 +90,20 @@ namespace LocalTreeData.Migrations
                 name: "IX_Nodes_NodeId",
                 table: "Nodes",
                 column: "NodeId");
-            */
+            
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
-        {
-            /*
+        {           
             migrationBuilder.DropTable(
                 name: "Files");
 
             migrationBuilder.DropTable(
-                name: "Trees");
+                name: "Nodes");
 
             migrationBuilder.DropTable(
-                name: "Nodes");
-            */
+                name: "Trees");           
         }
        
     }
