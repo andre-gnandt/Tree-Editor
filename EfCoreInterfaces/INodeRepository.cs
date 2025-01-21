@@ -10,9 +10,11 @@ namespace LocalTreeData.EfCoreInterfaces
         public Task<Node> DeleteAsync(Node node);
         public Task<IEnumerable<Node>> GetTreesAsync();
         public Task<IEnumerable<Node>> GetNodesAsync();
-        public Task<List<Models.File>> UpdateNodeFilesAsync(Node input, List<Models.File> filesAfter);
         public Task DeleteTreeAsync(Node node);
         public Task<Node> UpdateAsync(Node node);
         public Task<Node> CreateAsync(Node node);
+        public Task DeleteFile(Models.File file);
+        public Task<List<Models.File>> GetFilesByNodeId(Guid NodeId);
+        public Task<Models.File> CreateFile(Models.File file);
     }
 }

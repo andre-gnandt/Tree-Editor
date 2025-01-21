@@ -24,14 +24,12 @@ namespace LocalTreeData.Controllers
             return await _nodeService.GetTreesAsync();
         }
 
-        // GET: api/Nodes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<NodeDto>>> GetNodesAsync()
         {
             return await _nodeService.GetNodesAsync();
         }
 
-        // GET: api/Nodes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<NodeDto>> GetNodeAsync(Guid id)
         {
@@ -51,8 +49,6 @@ namespace LocalTreeData.Controllers
             return await _nodeService.UpdateMany(treeId, input);
         }
 
-        // PUT: api/Nodes/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
         public async Task<ActionResult<NodeDto>> PutNode(Guid id, UpdateNode input)
         {   
@@ -64,8 +60,6 @@ namespace LocalTreeData.Controllers
             return await _nodeService.PutNode(id, input);
         }
 
-        // POST: api/Nodes
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
         public async Task<ActionResult<NodeDto>> Create(CreateNode input)
         {
@@ -78,7 +72,6 @@ namespace LocalTreeData.Controllers
             return await _nodeService.CreateRoot(input);
         }
 
-        // DELETE: api/Nodes/5
         [HttpDelete("Delete-One/{parentId}")]
         public async Task<ActionResult<NodeDto>> DeleteNode(Guid parentId, UpdateNode node)
         {
