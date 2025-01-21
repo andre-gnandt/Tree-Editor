@@ -56,33 +56,25 @@ namespace LocalTreeData.EfCore
             return node;
         }
 
-        public async Task<List<Models.File>> UpdateNodeFilesAsync(Node input, List<Models.File> filesAfter)
+        public async Task<Models.File> CreateFile(Models.File file)
         {
-            var filesBefore = _context.Files.Where(q => q.NodeId == input.Id && !q.IsDeleted).ToList();
+            file.Id = Guid.NewGuid();
+            _context.Files.Add(file);
+            await _context.SaveChangesAsync();
 
-            foreach (var file in filesAfter)
-            {
-                if (filesBefore.Find(q => q.Id == file.Id) == null)
-                {
-                    file.Id = Guid.NewGuid();
-                    _context.Files.Add(file);
-                    await _context.SaveChangesAsync();
+            return file;
+        }
 
-                    if (input.ThumbnailId == file.Name) input.ThumbnailId = file.Id.ToString();
-                }
-            }
+        public async Task DeleteFile(Models.File file)
+        {
+            file.IsDeleted = true;
+            _context.Entry(file).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
 
-            foreach (var file in filesBefore)
-            {
-                if (filesAfter.Find(q => q.Id == file.Id) == null)
-                {
-                    file.IsDeleted = true;
-                    _context.Entry(file).State = EntityState.Modified;
-                    await _context.SaveChangesAsync();
-                }
-            }
-
-            return filesAfter;
+        public async Task<List<Models.File>> GetFilesByNodeId(Guid NodeId)
+        { 
+            return _context.Files.Where(q => q.NodeId == NodeId && !q.IsDeleted).ToList();
         }
 
         public async Task DeleteTreeAsync(Node node)

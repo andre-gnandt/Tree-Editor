@@ -4,6 +4,7 @@ using LocalTreeData.ApplicationInterfaces;
 using LocalTreeData.EfCore;
 using LocalTreeData.EfCoreInterfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace LocalTreeData.Application
 {
@@ -39,13 +40,41 @@ namespace LocalTreeData.Application
             return CustomMapper.Map((await _nodeRepository.GetNodesAsync()).ToList());
         }
 
+        private async Task<List<FilePreview>> UpdateNodeFilesAsync(Node input, List<FilePreview> filesAfter)
+        {
+            var filesBefore = await _nodeRepository.GetFilesByNodeId(input.Id);
+
+            int i = 0;
+            while(i < filesAfter.Count)
+            {
+                var file = filesAfter[i];
+                if (filesBefore.Find(q => q.Id == file.Id) == null)
+                {
+                    file.NodeId = input.Id;
+                    var newfile = CustomMapper.Map(await _nodeRepository.CreateFile(CustomMapper.Map(file)));
+                    if (input.ThumbnailId == newfile.Name) input.ThumbnailId = newfile.Id.ToString();
+                    filesAfter[i] = newfile;
+                }
+                i++;
+            }
+
+            foreach (var file in filesBefore)
+            {
+                if (filesAfter.Find(q => q.Id == file.Id) == null)
+                {
+                    await _nodeRepository.DeleteFile(file);
+                }
+            }
+            
+            return filesAfter;
+        }
+
         private async Task<NodeDto> UpdateNode(Guid id, UpdateNode input)
         {
-            var filesAfter = CustomMapper.Map(input.Files.ToList());
             Node node = CustomMapper.Map(input);
             node.Files = [];
             
-            var files = CustomMapper.Map(await _nodeRepository.UpdateNodeFilesAsync(node, filesAfter));
+            var files = await UpdateNodeFilesAsync(node, input.Files.ToList());
             var nodeDto = CustomMapper.Map(await _nodeRepository.UpdateAsync(node));
             nodeDto.Files = files;
             
@@ -81,15 +110,10 @@ namespace LocalTreeData.Application
 
         private async Task<NodeDto> CreateNode(CreateNode input)
         {
-            var filesAfter = input.Files.ToList();
             Node node = CustomMapper.Map(input);
             await _nodeRepository.CreateAsync(node);
 
-            foreach (var file in filesAfter)
-            {
-                file.NodeId = node.Id;
-            }
-            var files = CustomMapper.Map(await _nodeRepository.UpdateNodeFilesAsync(node, CustomMapper.Map(filesAfter)));
+            var files = await UpdateNodeFilesAsync(node, input.Files.ToList());
             if (input.ThumbnailId != null) await _nodeRepository.UpdateAsync(node);
             var nodeDto = CustomMapper.Map(node);
             nodeDto.Files = files;
