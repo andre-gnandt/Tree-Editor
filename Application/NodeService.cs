@@ -111,10 +111,11 @@ namespace LocalTreeData.Application
         private async Task<NodeDto> CreateNode(CreateNode input)
         {
             Node node = CustomMapper.Map(input);
-            var nodeDto = CustomMapper.Map(await _nodeRepository.CreateAsync(node));
+            await _nodeRepository.CreateAsync(node);
 
             var files = await UpdateNodeFilesAsync(node, input.Files.ToList());
             if (input.ThumbnailId != null) await _nodeRepository.UpdateAsync(node);
+            var nodeDto = CustomMapper.Map(node);
             nodeDto.Files = files;
 
             return nodeDto;
