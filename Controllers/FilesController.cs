@@ -26,6 +26,14 @@ namespace LocalTreeData.Controllers
             return CustomMapper.Map(files);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<FilePreview>> GetFile(Guid id)
+        {
+            Node.LoadFiles(true);
+            Node.LoadChildren(false);
 
+            var file = await _context.Files.FindAsync(id);
+            return CustomMapper.Map(file);
+        }
     }
 }

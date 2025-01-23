@@ -21,7 +21,7 @@ namespace LocalTreeData.Controllers
         public async Task<ActionResult<FullTree>> GetFullTree(Guid id)
         {
             Node.LoadChildren(true);
-            Node.LoadFiles(true);
+            Node.LoadFiles(false);
 
             Tree tree = await _context.Trees.FindAsync(id);
             if (tree.IsDeleted) return new FullTree { Tree = null, Root = null };
