@@ -12,7 +12,7 @@ namespace LocalTreeData.Dtos
         public string? Region { get; set; }
         public string? Data { get; set; }
         public ICollection<NodeDto> Children { get; set; }
-        public ICollection<FilePreview> Files { get; set; } = new List<FilePreview>();
+        public ICollection<FileDto> Files { get; set; } = new List<FileDto>();
         public Node? Parent { get; set; }
         public int? Level { get; set; }
         public int? Number { get; set; }

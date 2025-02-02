@@ -40,7 +40,7 @@ namespace LocalTreeData.Application
             return CustomMapper.Map((await _nodeRepository.GetNodesAsync()).ToList());
         }
 
-        private async Task<List<FilePreview>> UpdateNodeFilesAsync(Node input, List<FilePreview> filesAfter)
+        private async Task<List<FileDto>> UpdateNodeFilesAsync(Node input, List<FilePreview> filesAfter)
         {
             var filesBefore = await _nodeRepository.GetFilesByNodeId(input.Id);
 
@@ -66,7 +66,7 @@ namespace LocalTreeData.Application
                 }
             }
             
-            return filesAfter;
+            return CustomMapper.MapDto(filesAfter);
         }
 
         private async Task<NodeDto> UpdateNode(Guid id, UpdateNode input)
