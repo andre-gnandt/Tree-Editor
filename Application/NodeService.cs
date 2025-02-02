@@ -83,7 +83,7 @@ namespace LocalTreeData.Application
 
         public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid treeId, List<UpdateNode> inputList)
         {
-            Node.LoadFiles(true);
+            Node.LoadFiles(false);
             Node.LoadChildren(false);
 
             List<NodeDto> updatedNodes = new List<NodeDto>();
@@ -94,7 +94,7 @@ namespace LocalTreeData.Application
                     throw new ArgumentOutOfRangeException("Node does not belong to tree for updates.");
                 }
 
-                updatedNodes.Add(await UpdateNode(input.Id, input));
+                updatedNodes.Add(CustomMapper.Map(await _nodeRepository.UpdateAsync(CustomMapper.Map(input))));
             }
 
             return updatedNodes;
