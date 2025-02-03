@@ -40,7 +40,7 @@ namespace LocalTreeData.Application
             return CustomMapper.Map((await _nodeRepository.GetNodesAsync()).ToList());
         }
 
-        private async Task<List<FilePreview>> UpdateNodeFilesAsync(Node input, List<FilePreview> filesAfter)
+        private async Task<List<FileDto>> UpdateNodeFilesAsync(Node input, List<FilePreview> filesAfter)
         {
             var filesBefore = await _nodeRepository.GetFilesByNodeId(input.Id);
 
@@ -51,9 +51,9 @@ namespace LocalTreeData.Application
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
                 {
                     file.NodeId = input.Id;
-                    var newfile = CustomMapper.Map(await _nodeRepository.CreateFile(CustomMapper.Map(file)));
+                    var newfile = await _nodeRepository.CreateFile(CustomMapper.Map(file));
                     if (input.ThumbnailId == newfile.Name) input.ThumbnailId = newfile.Id.ToString();
-                    filesAfter[i] = newfile;
+                    filesAfter[i] = new FilePreview { Id = newfile.Id, Name = newfile.Name  };
                 }
                 i++;
             }
@@ -66,7 +66,7 @@ namespace LocalTreeData.Application
                 }
             }
             
-            return filesAfter;
+            return CustomMapper.MapDto(filesAfter);
         }
 
         private async Task<NodeDto> UpdateNode(Guid id, UpdateNode input)
@@ -83,7 +83,7 @@ namespace LocalTreeData.Application
 
         public async Task<ActionResult<List<NodeDto>>> UpdateMany(Guid treeId, List<UpdateNode> inputList)
         {
-            Node.LoadFiles(true);
+            Node.LoadFiles(false);
             Node.LoadChildren(false);
 
             List<NodeDto> updatedNodes = new List<NodeDto>();
@@ -94,7 +94,7 @@ namespace LocalTreeData.Application
                     throw new ArgumentOutOfRangeException("Node does not belong to tree for updates.");
                 }
 
-                updatedNodes.Add(await UpdateNode(input.Id, input));
+                updatedNodes.Add(CustomMapper.Map(await _nodeRepository.UpdateAsync(CustomMapper.Map(input))));
             }
 
             return updatedNodes;

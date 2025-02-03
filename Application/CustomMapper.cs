@@ -38,7 +38,7 @@ namespace LocalTreeData.Application
                 RankId = node.RankId,
                 ThumbnailId = node.ThumbnailId,
                 Level = node.Level,
-                Files = Map(node.Files.ToList())
+                Files = MapDto(node.Files.ToList())
             };
 
             nodeDto.Children = new List<NodeDto>();
@@ -62,6 +62,48 @@ namespace LocalTreeData.Application
                 Size = file.Size,
                 Type = file.Type
             };
+        }
+
+        public static FileDto MapDto(FilePreview file)
+        {
+            return new FileDto
+            {
+                Id = file.Id,
+                Name = file.Name
+            };
+        }
+
+        public static List<FileDto> MapDto(List<FilePreview> fileList)
+        {
+            List<FileDto> previewList = new List<FileDto>();
+
+            foreach (var file in fileList)
+            {
+                previewList.Add(MapDto(file));
+            }
+
+            return previewList;
+        }
+
+        public static FileDto MapDto(Models.File file)
+        {
+            return new FileDto
+            {
+                Id = file.Id,
+                Name = file.Name
+            };
+        }
+
+        public static List<FileDto> MapDto(List<Models.File> fileList)
+        {
+            List<FileDto> previewList = new List<FileDto>();
+
+            foreach (var file in fileList)
+            {
+                previewList.Add(MapDto(file));
+            }
+
+            return previewList;
         }
 
         public static Models.File Map(FilePreview filePreview)
