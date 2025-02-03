@@ -51,9 +51,9 @@ namespace LocalTreeData.Application
                 if (filesBefore.Find(q => q.Id == file.Id) == null)
                 {
                     file.NodeId = input.Id;
-                    var newfile = CustomMapper.Map(await _nodeRepository.CreateFile(CustomMapper.Map(file)));
+                    var newfile = await _nodeRepository.CreateFile(CustomMapper.Map(file));
                     if (input.ThumbnailId == newfile.Name) input.ThumbnailId = newfile.Id.ToString();
-                    filesAfter[i] = newfile;
+                    filesAfter[i] = new FilePreview { Id = newfile.Id, Name = newfile.Name  };
                 }
                 i++;
             }
