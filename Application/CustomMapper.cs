@@ -1,6 +1,5 @@
 ﻿using LocalTreeData.Models;
 using LocalTreeData.Dtos;
-using Microsoft.AspNetCore.Razor.TagHelpers;
 
 namespace LocalTreeData.Application
 {
@@ -112,7 +111,7 @@ namespace LocalTreeData.Application
             {
                 Id = filePreview.Id,
                 NodeId = filePreview.NodeId,
-                Data = filePreview.Data != null && filePreview.Data.Length > 0 ? filePreview.Data : null,   
+                Data = filePreview.Data != null && filePreview.Data.Length > 0 ? Convert.FromBase64String(filePreview.Data.Substring(filePreview.Data.IndexOf("base64,")+7)) : null,   
                 Name = filePreview.Name,
                 Description = filePreview.Description,
                 Size = filePreview.Size,

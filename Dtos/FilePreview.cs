@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid? NodeId { get; set; }
-        public byte[]? Data { get; set; }
+        public string? Data { get; set; }
         public string? Base64 { get; set; }
         public string Name { get; set; }
         public string? Description { get; set; }
