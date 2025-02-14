@@ -50,10 +50,18 @@ namespace LocalTreeData.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TreeDto>>> GetTreeList()
+        public async Task<ActionResult<TreeList>> GetTreeList(int maxCount = 1000, int skip = 0, string? search = null)
         {
+            var trees = _context.Trees.Where(q => !q.IsDeleted);
+            var searchedTrees = trees.Where(q => search == null || search.Length == 0 || q.Name.ToLower().Contains(search.ToLower()) || 
+                (q.Description != null && q.Description.ToLower().Contains(search.ToLower())));
 
-            return CustomMapper.Map( _context.Trees.Where(q => !q.IsDeleted).OrderBy(q => q.Name).ToList());
+            return new TreeList
+            {
+                Trees = CustomMapper.Map(searchedTrees.OrderBy(q => q.Name).Skip(skip).Take(maxCount).ToList()),
+                Count = trees.Count(),
+                SearchCount = searchedTrees.Count()
+            };
         }
 
         [HttpPut("{id}")]
